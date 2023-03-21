@@ -1,0 +1,202 @@
+<html>
+  <body>
+    <form name="info" action="#">
+      <fieldset>
+        <legend>公开信息</legend>
+        <div>
+          <label>姓名</label><input name="name" placeholder="ann"/><br/>
+        </div>
+        <div>
+          <label>年龄</label><input type="number" name="age"/><br/>
+        </div>
+        <div>
+          <label>血型</label><input name="bloodType" placeholder="B 型 RH 阳型血"/><br/>
+        </div>
+        <div>
+          <label>受孕时间</label><input name="EarthDate" type="date" placeholder="2022-4-15"/>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>加密信息</legend>
+        <div>
+          <label>公司</label><input name="company"/><br/>
+        </div>
+        <div>
+          <label>职位</label><input name="title"/><br/>
+        </div>
+        <div>
+          <label>家属名称</label><input name="linkman"/><br/>
+        </div>
+        <div>
+          <label>家属联系方式</label><input name="phoneNumber"/><br/>
+        </div>
+        <div>
+          <label>联系地址</label><input name="address"/>
+        </div>
+      </fieldset>
+      <button type="button" onclick="submit1(window.document.forms.info)">提交</button>
+      <button type="button" onclick="mock()">测试</button>
+      <button type="reset">重置</button>
+    </form>
+
+    <div id="container">
+      <div class="inner">
+        <canvas id="canvas"></canvas>
+        <p><span id="name"></span> <span class="type">孕</span> <span id="week"></span> 周</p>
+        <p id="bloodType"></p>
+        <p>
+          <sub>制作时间：<span id="time"></span></sub>
+        </p>
+      </div>
+    </div>
+    <a download="emergency.png" id="download">download</a>
+    <script src="./node_modules/qrcode-with-logos/dist/qrcode-with-logos.umd.min.js"></script>
+    <script src="./dom-to-image.js"></script>
+    <script type="text/javascript">
+      function getDisplayTime (current) {
+        const year = current.getFullYear()
+        const month = current.getMonth() + 1
+        const date = current.getDate()
+        const displayTime = `${year}年${month < 10 ? '0' + month : month}月${date < 10 ? '0' + date : date}日`
+        return displayTime
+      }
+
+      function getBirthCount (birthDate, current) {
+        const dayMs = 24 * 60 * 60 * 1000
+        const weekMs = 7 * dayMs
+        const passedMs = current.getTime() - birthDate.getTime()
+        const week = Math.floor(passedMs / weekMs)
+        const weekRest = Math.round((passedMs % weekMs) / dayMs)
+        return `${week}-${weekRest}/7`
+      }
+    </script>
+    <script type="text/javascript">
+      const d = new Date()
+      const timeEl = document.getElementById('time')
+      const weekEl = document.getElementById('week')
+      const nameEl = document.getElementById('name')
+      const bloodTypeEl = document.getElementById('bloodType')
+      const containerEl = document.getElementById('container');
+      const linkEl = document.getElementById('download');
+
+      const mockInfo = {
+        name: 'ann',
+        age: 28,
+        bloodType: 'B 型 RH 阳性',
+        EarthDate: '2022-4-15',
+        company: 'ABC',
+        title: 'Boss',
+        linkman: 'michael',
+        phoneNumber: '17711112222',
+        address: '上海浦东塘桥'
+      }
+
+      function mock () {
+        const proxy = new Proxy(mockInfo, {
+          get: function (obj, prop) {
+            window.document.forms.info[prop].value = obj[prop]
+            return {
+              value: obj[prop]
+            }
+          }
+        })
+        submit1(proxy, true)
+      }
+
+      function submit1 (info, mock = false) {
+        const { name, age, bloodType, EarthDate, company, title, linkman, phoneNumber, address } = info
+
+        timeEl.innerHTML = getDisplayTime(d)
+        weekEl.innerHTML = getBirthCount(new Date(EarthDate.value), d)
+        nameEl.innerHTML = name.value
+        bloodTypeEl.innerHTML = bloodType.value
+
+        const text = `${age.value}岁，${company.value}${title.value}，家属${linkman.value}：${phoneNumber.value}
+        家庭地址：${address.value}`
+
+        const qrcode = new QrCodeWithLogo({
+          canvas: document.getElementById("canvas"),
+          content: text,
+          width: 380,
+          logo: {
+            src: "./son.png",
+            logoSize: 0.3
+          }
+        }).toCanvas().then(() => {
+          domtoimage.toPng(containerEl)
+          .then(function (dataUrl) {
+            linkEl.href = dataUrl;
+            !mock && linkEl.click()
+          })
+          .catch(function (error) {
+              console.error('oops, something went wrong!', error);
+          });
+        })
+      }
+    </script>
+  </body>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      font-size: 14px;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    p {
+      text-align: center;
+      line-height: 24px;
+    }
+    #name {
+      font-size: 20px;
+    }
+    .type {
+      color:fuchsia
+    }
+    sub {
+      line-height: 32px;
+      font-family: fangsong;
+    }
+    #container {
+      padding-top: 200px;
+    }
+
+    .inner {
+      padding: 6px;
+      border-radius: 6px;
+      background-color: pink;
+    }
+
+    .canvas {
+      margin-top: 50px;
+      border-radius: 6px;
+    }
+
+    #download {
+      margin-top: 20px;
+      text-decoration: none;
+      padding: 3px 6px;
+      background: #cce;
+      color: #000;
+      visibility: hidden;
+    }
+    label {
+      width: 100px;
+      display: inline-block;
+    }
+    fieldset {
+      padding: 3px 6px;
+    }
+
+    fieldset div {
+      margin-bottom: 10px;
+    }
+    button {
+      margin-top: 10px;
+      width: 100%;
+    }
+  </style>
+</html>
