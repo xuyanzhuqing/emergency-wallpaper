@@ -1,55 +1,61 @@
 <html>
   <body>
-    <form name="info" action="#">
-      <fieldset>
-        <legend>公开信息</legend>
-        <div>
-          <label>姓名</label><input name="name" placeholder="ann"/><br/>
+    <div class="layout">
+      <div class="layout-lf">
+        <div id="container">
+          <div class="inner">
+            <canvas id="canvas"></canvas>
+            <p><span id="name"></span> <span class="type">孕</span> <span id="week"></span> 周</p>
+            <p id="bloodType"></p>
+            <p>
+              <sub>制作时间：<span id="time"></span></sub>
+            </p>
+          </div>
         </div>
-        <div>
-          <label>年龄</label><input type="number" name="age"/><br/>
-        </div>
-        <div>
-          <label>血型</label><input name="bloodType" placeholder="B 型 RH 阳型血"/><br/>
-        </div>
-        <div>
-          <label>受孕时间</label><input name="EarthDate" type="date" placeholder="2022-4-15"/>
-        </div>
-      </fieldset>
-      <fieldset>
-        <legend>加密信息</legend>
-        <div>
-          <label>公司</label><input name="company"/><br/>
-        </div>
-        <div>
-          <label>职位</label><input name="title"/><br/>
-        </div>
-        <div>
-          <label>家属名称</label><input name="linkman"/><br/>
-        </div>
-        <div>
-          <label>家属联系方式</label><input name="phoneNumber"/><br/>
-        </div>
-        <div>
-          <label>联系地址</label><input name="address"/>
-        </div>
-      </fieldset>
-      <button type="button" onclick="submit1(window.document.forms.info)">提交</button>
-      <button type="button" onclick="mock()">测试</button>
-      <button type="reset">重置</button>
-    </form>
-
-    <div id="container">
-      <div class="inner">
-        <canvas id="canvas"></canvas>
-        <p><span id="name"></span> <span class="type">孕</span> <span id="week"></span> 周</p>
-        <p id="bloodType"></p>
-        <p>
-          <sub>制作时间：<span id="time"></span></sub>
-        </p>
+      </div>
+      <div class="layout-rt">
+        <form name="info" action="#">
+          <fieldset>
+            <legend>公开信息</legend>
+            <div>
+              <label>姓名</label><input name="name" placeholder="ann"/><br/>
+            </div>
+            <div>
+              <label>年龄</label><input type="number" name="age"/><br/>
+            </div>
+            <div>
+              <label>血型</label><input name="bloodType" placeholder="B 型 RH 阳型血"/><br/>
+            </div>
+            <div>
+              <label>受孕时间</label><input name="birthDate" type="date" placeholder="2022-4-15"/>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>加密信息</legend>
+            <div>
+              <label>公司</label><input name="company"/><br/>
+            </div>
+            <div>
+              <label>职位</label><input name="title"/><br/>
+            </div>
+            <div>
+              <label>家属名称</label><input name="linkman"/><br/>
+            </div>
+            <div>
+              <label>家属联系方式</label><input name="phoneNumber"/><br/>
+            </div>
+            <div>
+              <label>联系地址</label><input name="address"/>
+            </div>
+          </fieldset>
+          <button type="button" onclick="mock()">测试</button>
+          <button type="button" onclick="submit1(window.document.forms.info)">提交</button>
+          <button type="reset">重置</button>
+        </form>
       </div>
     </div>
     <a download="emergency.png" id="download">download</a>
+
     <script src="./node_modules/qrcode-with-logos/dist/qrcode-with-logos.umd.min.js"></script>
     <script src="./dom-to-image.js"></script>
     <script type="text/javascript">
@@ -78,12 +84,11 @@
       const bloodTypeEl = document.getElementById('bloodType')
       const containerEl = document.getElementById('container');
       const linkEl = document.getElementById('download');
-
       const mockInfo = {
         name: 'ann',
         age: 28,
         bloodType: 'B 型 RH 阳性',
-        EarthDate: '2022-4-15',
+        birthDate: '2022-04-15',
         company: 'ABC',
         title: 'Boss',
         linkman: 'michael',
@@ -104,33 +109,37 @@
       }
 
       function submit1 (info, mock = false) {
-        const { name, age, bloodType, EarthDate, company, title, linkman, phoneNumber, address } = info
+        const { name, age, bloodType, birthDate, company, title, linkman, phoneNumber, address } = info
 
         timeEl.innerHTML = getDisplayTime(d)
-        weekEl.innerHTML = getBirthCount(new Date(EarthDate.value), d)
+        weekEl.innerHTML = getBirthCount(new Date(birthDate.value), d)
         nameEl.innerHTML = name.value
         bloodTypeEl.innerHTML = bloodType.value
 
         const text = `${age.value}岁，${company.value}${title.value}，家属${linkman.value}：${phoneNumber.value}
         家庭地址：${address.value}`
 
-        const qrcode = new QrCodeWithLogo({
+        let qrcode = new QrCodeWithLogo({
           canvas: document.getElementById("canvas"),
           content: text,
           width: 380,
           logo: {
             src: "./son.png",
-            logoSize: 0.3
           }
-        }).toCanvas().then(() => {
-          domtoimage.toPng(containerEl)
-          .then(function (dataUrl) {
-            linkEl.href = dataUrl;
-            !mock && linkEl.click()
-          })
-          .catch(function (error) {
-              console.error('oops, something went wrong!', error);
-          });
+        }).toImage()
+
+        if (mock) return
+
+        qrcode.then(() => {
+            domtoimage.toPng(containerEl)
+            .then(function (dataUrl) {
+              linkEl.href = dataUrl;
+              linkEl.click()
+              linkEl.remove()
+            })
+            .catch(function (error) {
+                console.error('oops, something went wrong!', error);
+            });
         })
       }
     </script>
@@ -141,10 +150,20 @@
       padding: 0;
       font-size: 14px;
     }
-    body {
+
+    .layout {
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      padding: 10px
+    }
+
+    .layout-lf {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+    }
+
+    .layout-rt {
+      width: 400px;
     }
     p {
       text-align: center;
@@ -159,9 +178,6 @@
     sub {
       line-height: 32px;
       font-family: fangsong;
-    }
-    #container {
-      padding-top: 200px;
     }
 
     .inner {
@@ -189,6 +205,7 @@
     }
     fieldset {
       padding: 3px 6px;
+      border-radius: 6px;
     }
 
     fieldset div {
