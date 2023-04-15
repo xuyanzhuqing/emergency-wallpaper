@@ -5,8 +5,6 @@
 ```
 npm install -g serve
 
-npm run serve
-
 serve ./
 ```
 
