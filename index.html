@@ -6,7 +6,7 @@
           <div class="inner">
             <canvas id="canvas"></canvas>
             <p><span id="name"></span> <span class="type">孕</span> <span id="week"></span> 周</p>
-            <p id="bloodType"></p>
+            <p id="bloodType">型</p>
             <p>
               <sub>制作时间：<span id="time"></span></sub>
             </p>
@@ -49,13 +49,12 @@
             </div>
           </fieldset>
           <button type="button" onclick="mock()">测试</button>
-          <button type="button" onclick="submit1(window.document.forms.info)">提交</button>
+          <button type="button" onclick="submit1(window.document.forms.info)">提交并下载</button>
           <button type="reset">重置</button>
         </form>
       </div>
     </div>
     <a download="emergency.png" id="download">download</a>
-
     <script src="./node_modules/qrcode-with-logos/dist/qrcode-with-logos.umd.min.js"></script>
     <script src="./dom-to-image.js"></script>
     <script type="text/javascript">
@@ -74,6 +73,12 @@
         const week = Math.floor(passedMs / weekMs)
         const weekRest = Math.round((passedMs % weekMs) / dayMs)
         return `${week}-${weekRest}/7`
+      }
+
+      const canvasWidth = 380
+
+      window.onload = () => {
+        document.documentElement.style.setProperty('--canvas-width', canvasWidth + 'px')
       }
     </script>
     <script type="text/javascript">
@@ -122,7 +127,7 @@
         let qrcode = new QrCodeWithLogo({
           canvas: document.getElementById("canvas"),
           content: text,
-          width: 380,
+          width: canvasWidth,
           logo: {
             src: "./son.png",
           }
@@ -145,6 +150,7 @@
     </script>
   </body>
   <style>
+
     * {
       margin: 0;
       padding: 0;
@@ -186,9 +192,10 @@
       background-color: pink;
     }
 
-    .canvas {
-      margin-top: 50px;
-      border-radius: 6px;
+    #canvas {
+      background-color: #fff;
+      width: var(--canvas-width);
+      height: var(--canvas-width);
     }
 
     #download {
