@@ -11,6 +11,9 @@
     "bin",
     "public"
   ],
+  "bin": {
+    "emergency": "./bin/emergency.js"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {

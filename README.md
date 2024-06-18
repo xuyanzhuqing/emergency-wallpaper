@@ -2,10 +2,10 @@
 
 
 
-```
-npm install -g serve
+```shell
+npm install -g emergency-wallpaper
 
-serve ./
+emergency
 ```
 
 
