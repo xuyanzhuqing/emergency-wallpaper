@@ -7,9 +7,14 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
+  "files": [
+    "bin",
+    "public"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "express": "^4.19.2",
     "html-to-image": "^1.10.0",
     "qrcode": "^1.5.0",
     "qrcode-with-logos": "^1.0.3"
