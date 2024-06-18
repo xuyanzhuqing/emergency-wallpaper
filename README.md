@@ -7,5 +7,8 @@ npm install -g emergency-wallpaper
 
 emergency
 ```
+![设置](example/settings.jpg)
+
+![示意图](example/emergency.png)
 
 
